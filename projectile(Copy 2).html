@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projectile Motion Calculator</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    #container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    label {
+        font-weight: bold;
+        color: #555;
+    }
+    input[type="number"] {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    #trajectoryGraph {
+        margin-bottom: 20px;
+    }
+    #footer {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>Welcome to Projectile Motion Calculator</h1>
+    <p>Made by Lalit using ChatGPT</p>
+</div>
+
+<div id="container" style="display: none;">
+    <h1>Projectile Motion Calculator</h1>
+
+    <div>
+        <label for="initialVelocity">Enter Initial Velocity (m/s):</label>
+        <input type="number" id="initialVelocity">
+    </div>
+
+    <div>
+        <label for="angle">Enter Angle of Projection (degrees):</label>
+        <input type="number" id="angle">
+    </div>
+
+    <div>
+        <label for="height">Enter Height of Projection (m, optional):</label>
+        <input type="number" id="height">
+    </div>
+
+    <button onclick="calculateProjectile()">Calculate</button>
+
+    <div id="trajectoryGraph"></div>
+    <div id="results"></div>
+</div>
+
+<div id="footer">
+    Made by Lalit using ChatGPT
+</div>
+
+<script>
+function showMainScreen() {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("container").style.display = "block";
+}
+
+setTimeout(showMainScreen, 2000);
+
+function calculateProjectile() {
+    var initialVelocity = parseFloat(document.getElementById("initialVelocity").value);
+    var angle = parseFloat(document.getElementById("angle").value);
+    var height = parseFloat(document.getElementById("height").value) || 0;
+    var g = 9.81; // acceleration due to gravity (m/s^2)
+    var radianAngle = angle * Math.PI / 180; // Convert angle to radians
+
+    // Calculate maximum height
+    var maxHeight = Math.pow(initialVelocity * Math.sin(radianAngle), 2) / (2 * g) + height;
+
+    // Calculate time of flight
+    var timeOfFlight = (2 * initialVelocity * Math.sin(radianAngle)) / g;
+
+    // Calculate range
+    var range = Math.pow(initialVelocity, 2) * Math.sin(2 * radianAngle) / g;
+
+    // Calculate time to reach maximum height
+    var timeToMaxHeight = (initialVelocity * Math.sin(radianAngle)) / g;
+
+    // Generate trajectory data points
+    var numPoints = 100;
+    var x = [];
+    var y = [];
+    for (var i = 0; i <= numPoints; i++) {
+        var t = (i / numPoints) * timeOfFlight;
+        x.push(initialVelocity * Math.cos(radianAngle) * t);
+        y.push(initialVelocity * Math.sin(radianAngle) * t - 0.5 * g * Math.pow(t, 2) + height);
+    }
+
+    // Plot trajectory graph
+    var data = [{
+        x: x,
+        y: y,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Trajectory',
+        line: { dash: 'dot', color: 'blue' }
+    }, {
+        x: [0, range],
+        y: [height, maxHeight],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Initial Velocity Vector',
+        line: { color: 'red', width: 2 }
+    }];
+    var layout = {
+        title: 'Projectile Trajectory',
+        xaxis: { title: 'Horizontal Distance (m)', scaleanchor: 'y', scaleratio: 1 },
+        yaxis: { title: 'Vertical Height (m)', scaleanchor: 'x', scaleratio: 1 },
+        autosize: true,
+        margin: { l: 50, r: 50, b: 120, t: 50, pad: 4 }
+    };
+    Plotly.newPlot('trajectoryGraph', data, layout, { responsive: true });
+
+    // Display results
+    document.getElementById("results").innerHTML = "<h2>Results</h2>" +
+        "<p>Maximum Height: " + maxHeight.toFixed(2) + " m</p>" +
+        "<p>Time of Flight: " + timeOfFlight.toFixed(2) + " s</p>" +
+        "<p>Range: " + range.toFixed(2) + " m</p>" +
+        "<p>Time to Reach Maximum Height: " + timeToMaxHeight.toFixed(2) + " s</p>";
+}
+</script>
+
+</body>
+</html>

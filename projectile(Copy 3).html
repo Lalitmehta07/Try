@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projectile Motion Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Starting Animation */
+    #startScreen {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #3498db, #2ecc71);
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 1;
+        transition: opacity 1s ease-in-out;
+    }
+
+    #startScreen.fadeOut {
+        opacity: 0;
+    }
+
+    #startScreen h1 {
+        font-size: 3em;
+        text-align: center;
+    }
+
+    /* Main Content Container */
+    #container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Footer */
+    #footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+    }
+</style>
+</head>
+<body>
+
+<!-- Starting Animation -->
+<div id="startScreen">
+    <h1>Welcome to Projectile Motion Calculator</h1>
+</div>
+
+<!-- Main Content Container -->
+<div id="container" style="display: none;">
+    <h1>Projectile Motion Calculator</h1>
+
+    <div>
+        <label for="initialVelocity">Enter Initial Velocity (m/s):</label>
+        <input type="number" id="initialVelocity">
+    </div>
+
+    <div>
+        <label for="angle">Enter Angle of Projection (degrees):</label>
+        <input type="number" id="angle">
+    </div>
+
+    <div>
+        <label for="height">Enter Height of Projection (m, optional):</label>
+        <input type="number" id="height">
+    </div>
+
+    <div>
+        <label for="depth">Enter Depth of Ground (m, optional):</label>
+        <input type="number" id="depth">
+    </div>
+
+    <button onclick="calculateProjectile()">Calculate</button>
+
+    <div id="trajectoryGraph"></div>
+    <div id="results"></div>
+</div>
+
+<!-- Footer -->
+<div id="footer">
+    Made by Lalit using ChatGPT
+</div>
+
+<!-- JavaScript code here -->
+<script>
+setTimeout(function() {
+    document.getElementById("startScreen").classList.add("fadeOut");
+    document.getElementById("container").style.display = "block";
+}, 2000);
+
+function calculateProjectile() {
+    var initialVelocity = parseFloat(document.getElementById("initialVelocity").value);
+    var angle = parseFloat(document.getElementById("angle").value);
+    var height = parseFloat(document.getElementById("height").value) || 0;
+    var depth = parseFloat(document.getElementById("depth").value) || 0;
+    var g = 9.81; // acceleration due to gravity (m/s^2)
+    var radianAngle = angle * Math.PI / 180; // Convert angle to radians
+
+    // Calculate maximum height
+    var maxHeight = Math.pow(initialVelocity * Math.sin(radianAngle), 2) / (2 * g) + height;
+
+    // Calculate time of flight
+    var timeOfFlight = (2 * initialVelocity * Math.sin(radianAngle)) / g;
+
+    // Calculate range
+    var range = Math.pow(initialVelocity, 2) * Math.sin(2 * radianAngle) / g;
+
+    // Calculate time to reach maximum height
+    var timeToMaxHeight = (initialVelocity * Math.sin(radianAngle)) / g;
+
+    // Calculate trajectory data points
+    var numPoints = 100;
+    var x = [];
+    var y = [];
+    var step = range / numPoints;
+    for (var i = 0; i <= numPoints; i++) {
+        var t = i * step / initialVelocity / Math.cos(radianAngle);
+        var h = initialVelocity * Math.sin(radianAngle) * t - 0.5 * g * Math.pow(t, 2) + height;
+        if (h < -depth) {
+            h = -depth;
+            t = Math.sqrt((2 * (height + depth)) / g);
+        }
+        x.push(initialVelocity * Math.cos(radianAngle) * t);
+        y.push(h);
+    }
+
+    // Plot trajectory graph
+    var ctx = document.getElementById('trajectoryGraph').getContext('2d');
+    var trajectoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: x,
+            datasets: [{
+                label: 'Trajectory',
+                data: y,
+                borderColor: 'blue',
+                borderWidth: 1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Horizontal Distance (m)'
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Vertical Height (m)'
+                    }
+                }]
+            }
+        }
+    });
+
+    // Display results
+    document.getElementById("results").innerHTML = "<h2>Results</h2>" +
+        "<p>Maximum Height: " + maxHeight.toFixed(2) + " m</p>" +
+        "<p>Time of Flight: " + timeOfFlight.toFixed(2) + " s</p>" +
+        "<p>Range: " + range.toFixed(2) + " m</p>" +
+        "<p>Time to Reach Maximum Height: " + timeToMaxHeight.toFixed(2) + " s</p>";
+}
+</script>
+
+</body>
+</html>

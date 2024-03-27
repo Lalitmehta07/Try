@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f7f7f7;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    p {
+      font-size: 18px;
+      margin-bottom: 30px;
+      color: #666;
+    }
+    button {
+      margin-bottom: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .hidden {
+      display: none;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: #999;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Homepage</h1>
+    <p>This page is made using ChatGPT and it is for testing purposes only. The page is entirely made from scratch using ChatGPT. This is a good demonstration of the potential of AI. For now, you can use the following tools:</p>
+    <button onclick="openProjectileCalculator()" target="_blank">Projectile Calculator</button>
+    <button onclick="openChatGPT()">Open ChatGPT</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <!-- Additional buttons -->
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <br>
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+    <button onclick="showPopup()">Unavailable</button>
+  </div>
+
+  <div id="popup" class="popup hidden">
+    <span class="close" onclick="closePopup()">×</span>
+    <p>This option may be available soon.</p>
+  </div>
+
+  <!-- Script for handling button clicks and popup -->
+  <script>
+    function openProjectileCalculator() {
+      // Replace with the URL of the Projectile Calculator page
+      window.open("projectile_calculator.html", "_blank");
+    }
+
+    function openChatGPT() {
+      // Replace with the URL of the ChatGPT page
+      window.location.href = "https://chat.openai.com";
+    }
+
+    function showPopup() {
+      var popup = document.getElementById('popup');
+      popup.classList.remove('hidden');
+    }
+
+    function closePopup() {
+      var popup = document.getElementById('popup');
+      popup.classList.add('hidden');
+    }
+  </script>
+
+  <!-- More content and scripts -->
+</body>
+</html>

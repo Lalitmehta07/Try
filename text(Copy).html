@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projectile Trajectory Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    canvas {
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="animation" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #fff; z-index: 9999; display: flex; justify-content: center; align-items: center;">
+    <h1 style="animation: fadeOut 2s forwards;">Welcome to Projectile Trajectory Calculator</h1>
+  </div>
+  <div style="padding: 20px;">
+    <label for="velocity">Initial Velocity (m/s):</label>
+    <input type="number" id="velocity" value="10"><br><br>
+    
+    <label for="angle">Angle of Projection (degrees):</label>
+    <input type="number" id="angle" value="45"><br><br>
+    
+    <label for="height">Height of Projection (m):</label>
+    <input type="number" id="height" value="0"><br><br>
+    
+    <label for="depth">Depth of Ground (m):</label>
+    <input type="number" id="depth" value="0"><br><br>
+    
+    <button onclick="calculate()">Calculate</button>
+  </div>
+  <div>
+    <canvas id="trajectoryChart" width="800" height="400"></canvas>
+  </div>
+  <div id="results" style="padding: 20px;">
+    <p id="maxHeight"></p>
+    <p id="timeOfFlight"></p>
+    <p id="range"></p>
+    <p id="timeToMaxHeight"></p>
+  </div>
+
+  <script>
+    function calculate() {
+      const velocity = parseFloat(document.getElementById('velocity').value);
+      const angle = parseFloat(document.getElementById('angle').value);
+      const height = parseFloat(document.getElementById('height').value);
+      const depth = parseFloat(document.getElementById('depth').value);
+
+      const g = 9.81; // acceleration due to gravity (m/s^2)
+      const theta = angle * Math.PI / 180; // convert angle to radians
+
+      const timeToMaxHeight = velocity * Math.sin(theta) / g;
+      const maxHeight = (velocity * Math.sin(theta)) ** 2 / (2 * g) + height;
+      const timeOfFlight = 2 * timeToMaxHeight;
+      const range = velocity ** 2 * Math.sin(2 * theta) / g;
+      
+      const ctx = document.getElementById('trajectoryChart').getContext('2d');
+      const trajectoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: Math.ceil(timeOfFlight) * 10 }, (_, i) => i / 10),
+          datasets: [{
+            label: 'Trajectory',
+            data: Array.from({ length: Math.ceil(timeOfFlight) * 10 }, (_, i) => {
+              const t = i / 10; // simulate time in 0.1 second intervals
+              const x = velocity * Math.cos(theta) * t;
+              const y = velocity * Math.sin(theta) * t - 0.5 * g * t * t + height;
+              return { x, y };
+            }),
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            pointRadius: 0 // Remove data points
+          }]
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              title: {
+                display: true,
+                text: 'Distance (m)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Height (m)'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Projectile Trajectory'
+            }
+          }
+        }
+      });
+
+      document.getElementById('maxHeight').innerText = `Maximum Height: ${maxHeight.toFixed(2)} m`;
+      document.getElementById('timeOfFlight').innerText = `Time of Flight: ${timeOfFlight.toFixed(2)} s`;
+      document.getElementById('range').innerText = `Range: ${range.toFixed(2)} m`;
+      document.getElementById('timeToMaxHeight').innerText = `Time to Reach Maximum Height: ${timeToMaxHeight.toFixed(2)} s`;
+    }
+
+    setTimeout(() => {
+      document.getElementById('animation').style.display = 'none';
+    }, 2000);
+  </script>
+  <footer style="position: fixed; bottom: 0; width: 100%; background-color: #f0f0f0; text-align: center; padding: 10px;">
+    Made by Lalit using ChatGPT
+  </footer>
+</body>
+</html>

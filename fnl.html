@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projectile Trajectory Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      width: calc(100% - 22px); /* Adjusted width to account for padding and border */
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%; /* Make the canvas responsive */
+      height: auto; /* Make the canvas responsive */
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    .calculation-section {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f5f5f5;
+      border-radius: 5px;
+    }
+
+    .calculation-item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center; color: #333;">Projectile Trajectory Calculator</h1>
+    <label for="velocity">Initial Velocity (m/s):</label>
+    <input type="number" id="velocity" value="10">
+    
+    <label for="angle">Angle of Projection (degrees):</label>
+    <input type="number" id="angle" value="45">
+    
+    <label for="height">Height of Projection (m):</label>
+    <input type="number" id="height" value="0">
+    
+    <label for="depth">Depth of Ground (m):</label>
+    <input type="number" id="depth" value="0">
+    
+    <button onclick="calculate()">Calculate</button>
+  </div>
+  <div class="container">
+    <canvas id="trajectoryChart"></canvas>
+  </div>
+  <div class="container">
+    <div id="results">
+      <p id="maxHeight"></p>
+      <p id="timeOfFlight"></p>
+      <p id="range"></p>
+      <p id="timeToMaxHeight"></p>
+    </div>
+    <div class="calculation-section">
+      <h2>Step-by-Step Calculations</h2>
+      <div class="calculation-item" id="step1"></div>
+      <div class="calculation-item" id="step2"></div>
+      <div class="calculation-item" id="step3"></div>
+      <div class="calculation-item" id="step4"></div>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const velocity = parseFloat(document.getElementById('velocity').value);
+      const angleDeg = parseFloat(document.getElementById('angle').value);
+      const height = parseFloat(document.getElementById('height').value);
+      const depth = parseFloat(document.getElementById('depth').value);
+
+      const g = 9.81; // acceleration due to gravity (m/s^2)
+      const theta = angleDeg * Math.PI / 180; // convert angle to radians
+
+      const timeToMaxHeight = velocity * Math.sin(theta) / g;
+      const maxHeight = (velocity * Math.sin(theta)) ** 2 / (2 * g) + height;
+      const timeOfFlight = 2 * timeToMaxHeight;
+      const range = velocity ** 2 * Math.sin(2 * theta) / g;
+      
+      const ctx = document.getElementById('trajectoryChart').getContext('2d');
+      const trajectoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: Math.ceil(timeOfFlight) * 10 }, (_, i) => i / 10),
+          datasets: [{
+            label: 'Trajectory',
+            data: Array.from({ length: Math.ceil(timeOfFlight) * 10 }, (_, i) => {
+              const t = i / 10; // simulate time in 0.1 second intervals
+              const x = velocity * Math.cos(theta) * t;
+              const y = velocity * Math.sin(theta) * t - 0.5 * g * t * t + height;
+              return { x, y };
+            }),
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            pointRadius: 0 // Remove data points
+          }]
+        },
+        options: {
+          aspectRatio: 1, // Maintain equal units on both axes
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              title: {
+                display: true,
+                text: 'Distance (m)',
+                color: '#333'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Height (m)',
+                color: '#333'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: `Projectile Trajectory (Angle: ${angleDeg}°)`,
+              color: '#333'
+            }
+          }
+        }
+      });
+
+      document.getElementById('maxHeight').innerText = `Maximum Height: ${maxHeight.toFixed(2)} m`;
+      document.getElementById('timeOfFlight').innerText = `Time of Flight: ${timeOfFlight.toFixed(2)} s`;
+      document.getElementById('range').innerText = `Range: ${range.toFixed(2)} m`;
+      document.getElementById('timeToMaxHeight').innerText = `Time to Reach Maximum Height: ${timeToMaxHeight.toFixed(2)} s`;
+
+      // Step-by-step calculations
+      document.getElementById('step1').innerText = `Step 1: Time to Reach Maximum Height = ${velocity.toFixed(2)} * sin(${angleDeg.toFixed(2)}) / ${g.toFixed(2)} = ${timeToMaxHeight.toFixed(2)} s`;
+      document.getElementById('step2').innerText = `Step 2: Maximum Height = (${velocity.toFixed(2)} * sin(${angleDeg.toFixed(2)}))^2 / (2 * ${g.toFixed(2)}) + ${height.toFixed(2)} = ${maxHeight.toFixed(2)} m`;
+      document.getElementById('step3').innerText = `Step 3: Time of Flight = 2 * ${timeToMaxHeight.toFixed(2)} = ${timeOfFlight.toFixed(2)} s`;
+      document.getElementById('step4').innerText = `Step 4: Range = ${velocity.toFixed(2)}^2 * sin(2 * ${angleDeg.toFixed(2)}) / ${g.toFixed(2)} = ${range.toFixed(2)} m`;
+    }
+  </script>
+  <footer>
+    Made by Lalit using ChatGPT
+  </footer>
+</body>
+</html>
+

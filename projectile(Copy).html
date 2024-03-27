@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projectile Motion Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #startScreen {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #startScreen.fadeOut {
+            opacity: 0;
+        }
+
+        #startScreen h1 {
+            font-size: 3em;
+            text-align: center;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        #results h2 {
+            margin-bottom: 0;
+        }
+
+        #trajectoryGraph {
+            width: 100%;
+            height: 60vh;
+            margin-top: 20px;
+        }
+
+        .no-trajectory-message {
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+            color: #555;
+        }
+
+        .results-container {
+            margin: 20px 0;
+        }
+
+        .results-container h2 {
+            margin-top: 0;
+        }
+
+        .results-container p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Starting Animation -->
+    <div id="startScreen">
+        <h1>Welcome to Projectile Motion Calculator</h1>
+    </div>
+
+    <!-- Main Content Container -->
+    <div id="container" style="display: none;">
+        <h1>Projectile Motion Calculator</h1>
+
+        <div>
+            <label for="initialVelocity">Enter Initial Velocity (m/s):</label>
+            <input type="number" id="initialVelocity" oninput="calculateTrajectory(event.target.value)">
+        </div>
+
+        <div>
+            <label for="angle">Enter Angle of Projection (degrees):</label>
+            <input type="number" id="angle" oninput="calculateTrajectory(event.target.value)">
+        </div>
+
+        <div>
+            <label for="height">Enter Height of Projection (m, optional):</label>
+            <input type="number"id="height" oninput="calculateTrajectory(event.target.value)">
+        </div>
+
+        <div>
+            <label for="depth">Enter Depth of Ground (m, optional):</label>
+            <input type="number" id="depth" oninput="calculateTrajectory(event.target.value)">
+        </div>
+
+        <button onclick="calculateTrajectory(this, 'Reset')">Calculate</button>
+
+        <div id="trajectoryGraphContainer">
+            <canvas id="trajectoryGraph" width="100%" height="60vh"></canvas>
+            <p class="no-trajectory-message">Please enter the initial velocity and angle to display the
+                trajectory.</p>
+        </div>
+
+        <div id="results" class="results-container">
+            <h2>Results:</h2>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        Made by Lalit using
+        ChatGPT
+    </div>
+
+    <!-- JavaScript code here -->
+    <script>
+        function calculateTrajectory(source, action) {
+            if (source !== 'Reset') {
+                var initialVelocity = parseFloat(document.getElementById("initialVelocity").value);
+                var angle = parseFloat(document.getElementById("angle").value);
+                var height = parseFloat(document.getElementById("height").value) || 0;
+                var depth = parseFloat(document.getElementById("depth").value) || 0;
+                var g = 9.81; // acceleration due to gravity (m/s^2)
+                var radianAngle = angle * Math.PI / 180; // Convert angle to radians
+
+                // Clear existing data
+                var x = [];
+                var y = [];
+
+                // Calculate trajectory data points
+                var numPoints = 100;
+                var step = 0.1;
+                for (var i = 0; i <= numPoints; i++) {
+                    var t = i * step / initialVelocity / Math.cos(radianAngle);
+                    x.push(initialVelocity * Math.cos(radianAngle) * t);
+                    var h = initialVelocity * Math.sin(radianAngle) * t - 0.5 * g * Math.pow(t, 2) + height;
+                    y.push(h);
+                }
+
+                // Plot trajectory graph
+                var ctx = document.getElementById('trajectoryGraph').getContext('2d');
+                var trajectoryGraph = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: x,
+                        datasets: [{
+                            label: 'Trajectory',
+                            data: y,
+                            borderColor: 'blue',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Horizontal Distance (m)'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Vertical Height (m)'
+                                },
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+
+                // Display results
+                document.getElementById("results").innerHTML =
+                    "<p>Maximum Height: <strong>" +
+                    (initialVelocity *
+                        Math.sin(radianAngle) *
+                        initialVelocity *
+                        Math.sin(radianAngle) +
+                        2 *
+                        height *
+                        g)
+                    .toFixed(
+                        2
+                    ) +
+                    "</strong> m</p>" +
+                    "<p>Time of Flight: <strong>" +
+                    ((2 *
+                        initialVelocity *
+                        Math.sin(radianAngle)) /
+                        g)
+                        .toFixed(
+                            2
+                        ) +
+                    "</strong> s</p>" +
+                    "<p>Range: <strong>" +
+                    (
+                        initialVelocity *
+                        Math.cos(radianAngle) *
+                        (
+                            (
+                                2 *
+                            initialVelocity *
+                            Math.sin(radianAngle)
+                            ) /
+                            g
+                        )
+                    )
+                        .toFixed(
+                            2
+                        ) +
+                    "</strong> m</p>" +
+                    "<p>Time to Reach Maximum Height: <strong>" +
+                    ((
+                        initialVelocity *
+                        Math.sin(radianAngle)
+                    ) /
+                        g)
+                        .toFixed(
+                            2
+                        ) +
+                    "</strong> s</p>";
+
+                // Show or hide the no-trajectory message
+                if (x.length > 0 && y.length > 0) {
+                    document.querySelector("#trajectoryGraphContainer .no-trajectory-message").style.display =
+                        "none";
+                } else {
+                    document.querySelector("#trajectoryGraphContainer .no-trajectory-message").style.display =
+                        "block";
+                }
+
+                // Clear the action
+                if (action === 'Reset') {
+                    document.getElementById("initialVelocity").value = "";
+                    document.getElementById("angle").value = "";
+                    document.getElementById("height").value = "";
+                    document.getElementById("depth").value = "";
+
+                    trajectoryGraph.destroy();
+
+                    document.querySelector("#trajectoryGraphContainer .no-trajectory-message").style.display =
+                        "block";
+
+                    document.getElementById("results").innerHTML =
+                        "<h2>Results:</h2>";
+                }
+            }
+        };
+
+        setTimeout(function () {
+            document.getElementById("startScreen").classList.add("fadeOut");
+            document.getElementById("container").style.display =
+                "block";
+        },
+        2000
+        );
+    </script>
+
+</body>
+
+</html>
