@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Copy TP Command</title>
+</head>
+<body onload="copyText()">
+  <textarea id="cmd" style="opacity:0;">/tp -4231 157 1511:-978850836577038351</textarea>
+  <p>Command copied! Paste it in your game.</p>
+
+  <script>
+    function copyText() {
+      const cmd = document.getElementById("cmd");
+      cmd.select();
+      document.execCommand("copy");
+    }
+  </script>
+</body>
+</html>
